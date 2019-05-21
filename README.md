@@ -7,3 +7,6 @@
 This project is a starting point for a Flutter application.
 
 ## License
+
+[MIT](https://github.com/mfcarneiro/the-bargainer-app/blob/master/LICENSE)
+
