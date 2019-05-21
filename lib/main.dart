@@ -1,38 +1,60 @@
 // In Flutter, never change the name of this file always will be 'name'
 import 'package:flutter/material.dart';
+import './product_manager.dart';
 
-// *This method convetion it's a good practice
-// * But with the method ONLY returns one thing
-// * Can be used the "fat arrow" ->
+//* This method convetion it's a good practice
+//* But with the method ONLY returns one thing
 // void main() {
 //   runApp(MyApp());
 // }
 
+// * Can be used the "fat arrow" ->
 void main() => runApp(MyApp());
 
+// class MyApp extends StatefulWidget {
+//   //! StatefulWidget always works with two objects (classes)
+//   @override
+//   State<StatefulWidget> createState() {
+//     return _MyAppState();
+//   }
+// }
+
+//! -> StatelessWidget only works with external data
+//! -> Does not accept changes and will not fire up when receive internal or data changes
+//! --> Underscore `_` It is the same convention to private access
+// class _MyAppState extends State<MyApp> {
+//! -> Flutter always will try to reach the 'build' method
+//!-> Because the framework will understand this 'build method' and try to drawn something on the screen
+//   @override
+//   Widget build(BuildContext context) {
+//! --> Inside of the build method, it will be only returned another widget (It's a rule)
+//     return MaterialApp(
+//         home: Scaffold(
+//             appBar: AppBar(
+//               title: Text('The Bargainer'),
+//             ),
+//             body: Column(children: <Widget>[
+
+//             ])));
+//   }
+// }
+
 class MyApp extends StatelessWidget {
-  // ! -> Flutter always will try to reach the 'build' method
-  // !-> Because the framework will understand this 'build method' and try to drawn something on the screen
   @override
   Widget build(BuildContext context) {
-    // ! --> Inside of the build method, it will be only returned another widget (It's a rule)
     return MaterialApp(
+        theme: ThemeData(
+            brightness: Brightness.light,
+            primarySwatch: Colors.deepPurple,
+            accentColor: Colors.deepOrange),
         home: Scaffold(
-      appBar: AppBar(
-        title: Text('The Bargainer'),
-      ),
-      body: Card(
-        child: Column(
-          // * --> <Widget> It's a generic type on dart (In this case, A generic array type)
-          children: <Widget>[
-            // * --> On Dart, When use a dot notation, it means an constuctor, assesing the wanted feature
-            Image.asset(
-              'assets/food.jpg',
-            ),
-            Text('Food Paradise')
-          ],
-        ),
-      ),
-    ));
+          appBar: AppBar(
+            title: Text('The Bargainer'),
+          ),
+          //! --> Using `Positional arguments`
+          //! --> The same name passed by signature argument, need to be passed when it's called
+          //! E.g `ProductManager(startingProduct: 'Sweet Potato')`
+          body: ProductManager('Food tester'),
+        ));
   }
 }
