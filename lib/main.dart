@@ -1,6 +1,6 @@
 // In Flutter, never change the name of this file always will be 'main'
 import 'package:flutter/material.dart';
-import './product_manager.dart';
+import './pages/home.dart';
 
 //* This method convetion it's a good practice
 //* But with the method ONLY returns one thing
@@ -47,14 +47,10 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.light,
             primarySwatch: Colors.deepPurple,
             accentColor: Colors.deepOrange),
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text('The Bargainer'),
-          ),
-          //! --> Using `Positional arguments`
-          //! --> The same name passed by signature argument, need to be passed when it's called
-          //! E.g `ProductManager(startingProduct: 'Sweet Potato')`
-          body: ProductManager(),
-        ));
+        home: HomePage());
   }
 }
+
+//* Flutter works similar to Android, having a stack of pages  (like Activicty stack)
+//* Each route that was pushed, go on top of the stack
+

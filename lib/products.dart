@@ -2,6 +2,7 @@
 //! It will be needed to import the used libraries
 //! This behavior exists because every file on Flutter works standalone
 import 'package:flutter/material.dart';
+import './pages/product.dart';
 
 class Products extends StatelessWidget {
   //* The `final` keyword it is the same convention to not mutate the data
@@ -10,7 +11,7 @@ class Products extends StatelessWidget {
   //* Set up the constructor to propagate the data comming from outside
   Products([this.products = const []]);
 
-  Widget _productListItem(BuildContext context, int index) {
+  Widget _buildProductItem(BuildContext context, int index) {
     return Card(
       child: Column(
         //* --> <Widget> It's a generic type on dart (In this case, A generic array type)
@@ -19,7 +20,22 @@ class Products extends StatelessWidget {
           Image.asset(
             'assets/food.jpg',
           ),
-          Text(products[index])
+          Text(products[index]),
+          ButtonBar(
+            alignment: MainAxisAlignment.center,
+            children: <Widget>[
+              FlatButton(
+                child: Text('Details'),
+                //* Navigator can be used because lives under the MaterialApp()
+                //* And MaterialApp() is imported by flutter/material
+                //* MaterialPageRoute() gives the transaction effects
+                onPressed: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                        builder: (BuildContext context) => ProductPage())),
+              )
+            ],
+          )
         ],
       ),
     );
@@ -30,7 +46,7 @@ class Products extends StatelessWidget {
 
     if (products.length > 0) {
       productCards = ListView.builder(
-          itemBuilder: _productListItem, itemCount: products.length);
+          itemBuilder: _buildProductItem, itemCount: products.length);
     } else {
       productCards = Center(
         child: Text('No Products found'),

@@ -13,7 +13,7 @@ class ProductControl extends StatelessWidget {
       child: Text('Add Product'),
       onPressed: () {
         //* `setState()` will watch for any changes and update the widget
-        addProduct('Sweets');
+        addProduct('Sweets'); 
       },
     );
   }
