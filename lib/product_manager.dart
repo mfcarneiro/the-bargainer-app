@@ -9,7 +9,7 @@ class ProductManager extends StatefulWidget {
   //* In Dart, we can specify the name witch argument will receives the data
   //! --> It's used around with {}  (This is called positional arguments)
   //* E.g: `ProductManager({this.startingProduct}`)
-  ProductManager(this.startingProduct);
+  ProductManager({this.startingProduct});
 
   @override
   State<StatefulWidget> createState() {
@@ -31,7 +31,9 @@ class _ProductManagerState extends State<ProductManager> {
     //! `widget` is provided by `State` class
     //! the `State` class is connected to `ProductManager`
     //! Then give access to all the features (methods and variables) inside of `ProductManager` class
-    _products.add(widget.startingProduct);
+    if (widget.startingProduct != null) {
+      _products.add(widget.startingProduct);
+    }
   }
 
   void _addProduct(String product) {
@@ -49,7 +51,15 @@ class _ProductManagerState extends State<ProductManager> {
           //* EdgeInserts gives a margin to all the directions with a px value within
           margin: EdgeInsets.all(8),
           child: ProductControl(_addProduct)),
-      Products(_products)
+      Expanded(child: Products(_products))
     ]);
   }
 }
+
+//* List and Conditional notes
+//! Whenever use a ListView widget, we must wrapper the giving constructor, a wrapper widget, that is required by ListView
+//! Can be done with two wrapper widgets:
+//! Container: Receives a height, required by ListView, that will control the size that will be displayed
+//! Expanded: This will be fit all the screen size
+//? Rendering a normal list, will hold all the items into memory, causing problem issues
+//! A better way is using the constructor called ListView.builder()

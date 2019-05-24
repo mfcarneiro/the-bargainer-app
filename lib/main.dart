@@ -1,4 +1,4 @@
-// In Flutter, never change the name of this file always will be 'name'
+// In Flutter, never change the name of this file always will be 'main'
 import 'package:flutter/material.dart';
 import './product_manager.dart';
 
@@ -54,7 +54,7 @@ class MyApp extends StatelessWidget {
           //! --> Using `Positional arguments`
           //! --> The same name passed by signature argument, need to be passed when it's called
           //! E.g `ProductManager(startingProduct: 'Sweet Potato')`
-          body: ProductManager('Food tester'),
+          body: ProductManager(),
         ));
   }
 }
