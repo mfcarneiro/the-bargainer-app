@@ -6,10 +6,12 @@ import './pages/product.dart';
 
 class Products extends StatelessWidget {
   //* The `final` keyword it is the same convention to not mutate the data
-  final List<String> products;
+  final List<Map<String, String>> products;
+  final Function deleteProduct;
 
   //* Set up the constructor to propagate the data comming from outside
-  Products([this.products = const []]);
+  // Products([this.products = const []]);
+  Products(this.products, {this.deleteProduct});
 
   Widget _buildProductItem(BuildContext context, int index) {
     return Card(
@@ -18,9 +20,9 @@ class Products extends StatelessWidget {
         children: <Widget>[
           //* --> On Dart, When use a dot notation, it means an constuctor, accessing the wanted feature
           Image.asset(
-            'assets/food.jpg',
+            products[index]['image'],
           ),
-          Text(products[index]),
+          Text(products[index]['title']),
           ButtonBar(
             alignment: MainAxisAlignment.center,
             children: <Widget>[
@@ -29,10 +31,20 @@ class Products extends StatelessWidget {
                 //* Navigator can be used because lives under the MaterialApp()
                 //* And MaterialApp() is imported by flutter/material
                 //* MaterialPageRoute() gives the transaction effects
-                onPressed: () => Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                        builder: (BuildContext context) => ProductPage())),
+                //! onPressed: () => Navigator.push( <T>
+                onPressed: () => Navigator.push<bool>(
+                        //* The push method is a Generic, so it can be configured any type of data
+                        //! THe push method return a Future method
+                        //! This Future behaves same as a Javascript Promise
+                        context,
+                        MaterialPageRoute(
+                            builder: (BuildContext context) => ProductPage(
+                                products[index]['title'],
+                                products[index]['image']))).then((bool value) {
+                      if (value) {
+                        deleteProduct(index);
+                      }
+                    }),
               )
             ],
           )
@@ -49,7 +61,7 @@ class Products extends StatelessWidget {
           itemBuilder: _buildProductItem, itemCount: products.length);
     } else {
       productCards = Center(
-        child: Text('No Products found'),
+        child: Text('No Products were found'),
       );
     }
     //! Never return NULL, the build method does not accept null

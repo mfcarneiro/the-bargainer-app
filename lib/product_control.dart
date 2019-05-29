@@ -13,7 +13,8 @@ class ProductControl extends StatelessWidget {
       child: Text('Add Product'),
       onPressed: () {
         //* `setState()` will watch for any changes and update the widget
-        addProduct('Sweets'); 
+        //? Map have the same notation of a json-object
+        addProduct({'title': 'Donuts', 'image': 'assets/food.jpg'});
       },
     );
   }

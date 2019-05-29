@@ -1,6 +1,6 @@
 // In Flutter, never change the name of this file always will be 'main'
 import 'package:flutter/material.dart';
-import './pages/home.dart';
+import './pages/auth_page.dart';
 
 //* This method convetion it's a good practice
 //* But with the method ONLY returns one thing
@@ -47,10 +47,9 @@ class MyApp extends StatelessWidget {
             brightness: Brightness.light,
             primarySwatch: Colors.deepPurple,
             accentColor: Colors.deepOrange),
-        home: HomePage());
+        home: AuthPage());
   }
 }
 
 //* Flutter works similar to Android, having a stack of pages  (like Activicty stack)
 //* Each route that was pushed, go on top of the stack
-

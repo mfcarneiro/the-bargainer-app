@@ -4,7 +4,7 @@ import './product_control.dart';
 
 class ProductManager extends StatefulWidget {
   //! We can receive external data on `StatefulWidged` too
-  final String startingProduct;
+  final Map<String, String> startingProduct;
 
   //* In Dart, we can specify the name witch argument will receives the data
   //! --> It's used around with {}  (This is called positional arguments)
@@ -18,7 +18,7 @@ class ProductManager extends StatefulWidget {
 }
 
 class _ProductManagerState extends State<ProductManager> {
-  List<String> _products = [];
+  List<Map<String, String>> _products = [];
 
   @override
   //! --> The `State` class has a method called `widget`
@@ -36,9 +36,15 @@ class _ProductManagerState extends State<ProductManager> {
     }
   }
 
-  void _addProduct(String product) {
+  void _addProduct(Map<String, String> product) {
     setState(() {
       _products.add(product);
+    });
+  }
+
+  void _deleteProduct(int index) {
+    setState(() {
+      _products.removeAt(index);
     });
   }
 
@@ -51,7 +57,7 @@ class _ProductManagerState extends State<ProductManager> {
           //* EdgeInserts gives a margin to all the directions with a px value within
           margin: EdgeInsets.all(8),
           child: ProductControl(_addProduct)),
-      Expanded(child: Products(_products))
+      Expanded(child: Products(_products, deleteProduct: _deleteProduct))
     ]);
   }
 }
@@ -61,5 +67,5 @@ class _ProductManagerState extends State<ProductManager> {
 //! Can be done with two wrapper widgets:
 //! Container: Receives a height, required by ListView, that will control the size that will be displayed
 //! Expanded: This will be fit all the screen size
-//? Rendering a normal list, will hold all the items into memory, causing problem issues
+//? Rendering a normal list, will hold all the items into memory, causing problems
 //! A better way is using the constructor called ListView.builder()
