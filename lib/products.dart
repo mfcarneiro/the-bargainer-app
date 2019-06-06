@@ -2,7 +2,6 @@
 //! It will be needed to import the used libraries
 //! This behavior exists because every file on Flutter works standalone
 import 'package:flutter/material.dart';
-import './pages/product.dart';
 
 class Products extends StatelessWidget {
   //* The `final` keyword it is the same convention to not mutate the data
@@ -32,15 +31,23 @@ class Products extends StatelessWidget {
                 //* And MaterialApp() is imported by flutter/material
                 //* MaterialPageRoute() gives the transaction effects
                 //! onPressed: () => Navigator.push( <T>
-                onPressed: () => Navigator.push<bool>(
-                        //* The push method is a Generic, so it can be configured any type of data
-                        //! THe push method return a Future method
-                        //! This Future behaves same as a Javascript Promise
-                        context,
-                        MaterialPageRoute(
-                            builder: (BuildContext context) => ProductPage(
-                                products[index]['title'],
-                                products[index]['image']))).then((bool value) {
+                //! old way
+                // onPressed: () => Navigator.push<bool>(
+                //         //* The push method is a Generic, so it can be configured any type of data
+                //         //! THe push method return a Future method
+                //         //! This Future behaves same as a Javascript Promise
+                //         context,
+                //         MaterialPageRoute(
+                //             builder: (BuildContext context) => ProductPage(
+                //                 products[index]['title'],
+                //                 products[index]['image']))).then((bool value) {
+                //       if (value) {
+                //         deleteProduct(index);
+                //       }
+                //     }),
+                onPressed: () => Navigator.pushNamed<bool>(
+                            context, '/product/' + index.toString())
+                        .then((bool value) {
                       if (value) {
                         deleteProduct(index);
                       }

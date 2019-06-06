@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import './products.dart';
 
 class AuthPage extends StatelessWidget {
   static const String routeName = "/auth";
@@ -14,10 +13,7 @@ class AuthPage extends StatelessWidget {
         child: RaisedButton(
           child: Text('Login'),
           onPressed: () {
-            Navigator.pushReplacement(
-                context,
-                MaterialPageRoute(
-                    builder: (BuildContext context) => ProductsPage()));
+            Navigator.pushReplacementNamed(context, '/');
           },
         ),
       ),
