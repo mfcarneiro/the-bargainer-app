@@ -59,6 +59,8 @@ _showWarningDialog(BuildContext context) {
               child: Text('OK'),
               onPressed: () {
                 Navigator.pop(context);
+                //! Passing the `true` value that indicates for the route that is expecting a Future (Promise) value
+                //! to erase the current product
                 Navigator.pop(context, true);
               },
             )
