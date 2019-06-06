@@ -1,6 +1,11 @@
-// In Flutter, never change the name of this file always will be 'main'
+//! In Flutter, never change the name of this file always will be 'main'
 import 'package:flutter/material.dart';
-import './product_manager.dart';
+// import './pages/auth_page.dart';
+
+// Routes
+import './pages/product_admin.dart';
+import './pages/products.dart';
+import './pages/product.dart';
 
 //* This method convetion it's a good practice
 //* But with the method ONLY returns one thing
@@ -39,22 +44,110 @@ void main() => runApp(MyApp());
 //   }
 // }
 
-class MyApp extends StatelessWidget {
+class MyApp extends StatefulWidget {
+  @override
+  State<StatefulWidget> createState() {
+    return MyAppState();
+  }
+}
+
+class MyAppState extends State<MyApp> {
+  List<Map<String, String>> _products = [];
+
+  void _addProduct(Map<String, String> product) {
+    setState(() {
+      _products.add(product);
+    });
+  }
+
+  void _deleteProduct(int index) {
+    setState(() {
+      _products.removeAt(index);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-        theme: ThemeData(
-            brightness: Brightness.light,
-            primarySwatch: Colors.deepPurple,
-            accentColor: Colors.deepOrange),
-        home: Scaffold(
-          appBar: AppBar(
-            title: Text('The Bargainer'),
-          ),
-          //! --> Using `Positional arguments`
-          //! --> The same name passed by signature argument, need to be passed when it's called
-          //! E.g `ProductManager(startingProduct: 'Sweet Potato')`
-          body: ProductManager(),
-        ));
+      theme: ThemeData(
+          brightness: Brightness.light,
+          primarySwatch: Colors.deepPurple,
+          accentColor: Colors.deepOrange),
+      // home: AuthPage(),
+      //! Can be use only `admin` but the slash is a indentifier
+      routes: {
+        //! Using the `/` it's the same way of using home attribute, use one or another, both will not work
+        '/': _createRoute(ProductsPage(_products, _addProduct, _deleteProduct)),
+        '/admin': _createRoute(ProductAdminPage())
+      },
+      //! Only is triggered when not configured on the main `routes:` attribute
+      onGenerateRoute: (RouteSettings routerSettings) {
+        final List<String> routerPath = routerSettings.name.split('/');
+
+        if (routerPath[0] != '') {
+          return null;
+        }
+
+        if (routerPath[1] == 'product') {
+          final int index = int.parse(routerPath[2]);
+          return MaterialPageRoute<bool>(
+              builder: (BuildContext context) => ProductPage(
+                  _products[index]['title'], _products[index]['image']));
+        }
+
+        return null;
+      },
+      //! Sort of fallback page to redirect when some route was not more valid
+      onUnknownRoute: (RouteSettings unknownRouterSettings) {
+        return MaterialPageRoute(
+            builder: _createRoute(
+                ProductsPage(_products, _addProduct, _deleteProduct)));
+      },
+    );
   }
 }
+
+Function _createRoute(Widget page) {
+  return (BuildContext context) => page;
+}
+
+//* Since we need to control the products, the product class will be controlled on the main file
+//* Turning MyApp class into a statefulWidget
+// class MyApp extends StatelessWidget {
+//   @override
+//   Widget build(BuildContext context) {
+//     return MaterialApp(
+//       theme: ThemeData(
+//           brightness: Brightness.light,
+//           primarySwatch: Colors.deepPurple,
+//           accentColor: Colors.deepOrange),
+//       // home: AuthPage(),
+//       //! Can be use only `admin` but the slash is a indentifier
+//       routes: {
+//         //! Using the `/` it's the same way of using home attribute, use one or another, both will not work
+//         '/': _createRoute(ProductsPage()),
+//         '/admin': _createRoute(ProductAdminPage())
+//       },
+//       //! Only is triggered when not configured on the main `routes:` attribute
+//       onGenerateRoute: (RouteSettings routerSettings) {
+//         final List<String> routerPath = routerSettings.name.split('/');
+
+//         if (routerPath[0] != '') {
+//           return null;
+//         }
+
+//         if (routerPath[2] == 'product') {
+//           final int index = int.parse(routerPath[2]);
+//           return MaterialPageRoute(
+//               builder: (BuildContext context) => ProductPage(
+//                   products[index]['title'], products[index]['image']));
+//         }
+
+//         return null;
+//       },
+//     );
+//   }
+// }
+
+//* Flutter works similar to Android, having a stack of pages  (like Activicty stack)
+//* Each route that was pushed, go on top of the stack

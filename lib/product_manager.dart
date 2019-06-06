@@ -1,46 +1,14 @@
 import 'package:flutter/material.dart';
+
 import './products.dart';
 import './product_control.dart';
 
-class ProductManager extends StatefulWidget {
-  //! We can receive external data on `StatefulWidged` too
-  final String startingProduct;
+class ProductManager extends StatelessWidget {
+  final List<Map<String, String>> products;
+  final Function addProduct;
+  final Function deleteProduct;
 
-  //* In Dart, we can specify the name witch argument will receives the data
-  //! --> It's used around with {}  (This is called positional arguments)
-  //* E.g: `ProductManager({this.startingProduct}`)
-  ProductManager({this.startingProduct});
-
-  @override
-  State<StatefulWidget> createState() {
-    return _ProductManagerState();
-  }
-}
-
-class _ProductManagerState extends State<ProductManager> {
-  List<String> _products = [];
-
-  @override
-  //! --> The `State` class has a method called `widget`
-  //! --> This widget property is used because this method (productManagerState) is binded to the `State` class
-  //! --> initState() will be fired when `ProductManager` was drawned on the screen (in the first time, for example)
-  //! --> Then can be used the `widget.startingProduct`
-  void initState() {
-    super.initState(); //! --> always in top
-    //! The flow explication
-    //! `widget` is provided by `State` class
-    //! the `State` class is connected to `ProductManager`
-    //! Then give access to all the features (methods and variables) inside of `ProductManager` class
-    if (widget.startingProduct != null) {
-      _products.add(widget.startingProduct);
-    }
-  }
-
-  void _addProduct(String product) {
-    setState(() {
-      _products.add(product);
-    });
-  }
+  ProductManager(this.products, this.addProduct, this.deleteProduct);
 
   @override
   //! When this `build` method run the first time
@@ -50,16 +18,8 @@ class _ProductManagerState extends State<ProductManager> {
       Container(
           //* EdgeInserts gives a margin to all the directions with a px value within
           margin: EdgeInsets.all(8),
-          child: ProductControl(_addProduct)),
-      Expanded(child: Products(_products))
+          child: ProductControl(addProduct)),
+      Expanded(child: Products(products, deleteProduct: deleteProduct))
     ]);
   }
 }
-
-//* List and Conditional notes
-//! Whenever use a ListView widget, we must wrapper the giving constructor, a wrapper widget, that is required by ListView
-//! Can be done with two wrapper widgets:
-//! Container: Receives a height, required by ListView, that will control the size that will be displayed
-//! Expanded: This will be fit all the screen size
-//? Rendering a normal list, will hold all the items into memory, causing problem issues
-//! A better way is using the constructor called ListView.builder()
