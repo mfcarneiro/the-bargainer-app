@@ -5,12 +5,11 @@ import 'package:flutter/material.dart';
 
 class Products extends StatelessWidget {
   //* The `final` keyword it is the same convention to not mutate the data
-  final List<Map<String, String>> products;
-  final Function deleteProduct;
+  final List<Map<String, dynamic>> products;
 
   //* Set up the constructor to propagate the data comming from outside
   // Products([this.products = const []]);
-  Products(this.products, {this.deleteProduct});
+  Products({this.products});
 
   Widget _buildProductItem(BuildContext context, int index) {
     return Card(
@@ -26,33 +25,27 @@ class Products extends StatelessWidget {
             alignment: MainAxisAlignment.center,
             children: <Widget>[
               FlatButton(
-                child: Text('Details'),
-                //* Navigator can be used because lives under the MaterialApp()
-                //* And MaterialApp() is imported by flutter/material
-                //* MaterialPageRoute() gives the transaction effects
-                //! onPressed: () => Navigator.push( <T>
-                //! old way
-                // onPressed: () => Navigator.push<bool>(
-                //         //* The push method is a Generic, so it can be configured any type of data
-                //         //! THe push method return a Future method
-                //         //! This Future behaves same as a Javascript Promise
-                //         context,
-                //         MaterialPageRoute(
-                //             builder: (BuildContext context) => ProductPage(
-                //                 products[index]['title'],
-                //                 products[index]['image']))).then((bool value) {
-                //       if (value) {
-                //         deleteProduct(index);
-                //       }
-                //     }),
-                onPressed: () => Navigator.pushNamed<bool>(
-                            context, '/product/' + index.toString())
-                        .then((bool value) {
-                      if (value) {
-                        deleteProduct(index);
-                      }
-                    }),
-              )
+                  child: Text('Details'),
+                  //* Navigator can be used because lives under the MaterialApp()
+                  //* And MaterialApp() is imported by flutter/material
+                  //* MaterialPageRoute() gives the transaction effects
+                  //! onPressed: () => Navigator.push( <T>
+                  //! old way
+                  // onPressed: () => Navigator.push<bool>(
+                  //         //* The push method is a Generic, so it can be configured any type of data
+                  //         //! THe push method return a Future method
+                  //         //! This Future behaves same as a Javascript Promise
+                  //         context,
+                  //         MaterialPageRoute(
+                  //             builder: (BuildContext context) => ProductPage(
+                  //                 products[index]['title'],
+                  //                 products[index]['image']))).then((bool value) {
+                  //       if (value) {
+                  //         deleteProduct(index);
+                  //       }
+                  //     }),
+                  onPressed: () => Navigator.pushNamed<bool>(
+                      context, '/product/' + index.toString()))
             ],
           )
         ],
