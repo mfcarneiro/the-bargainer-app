@@ -1,6 +1,6 @@
 //! In Flutter, never change the name of this file always will be 'main'
 import 'package:flutter/material.dart';
-// import './pages/auth_page.dart';
+import './pages/auth_page.dart';
 
 // Routes
 import './pages/product_admin.dart';
@@ -52,9 +52,9 @@ class MyApp extends StatefulWidget {
 }
 
 class MyAppState extends State<MyApp> {
-  List<Map<String, String>> _products = [];
+  List<Map<String, dynamic>> _products = [];
 
-  void _addProduct(Map<String, String> product) {
+  void _addProduct(Map<String, dynamic> product) {
     setState(() {
       _products.add(product);
     });
@@ -77,8 +77,10 @@ class MyAppState extends State<MyApp> {
       //! Can be use only `admin` but the slash is a indentifier
       routes: {
         //! Using the `/` it's the same way of using home attribute, use one or another, both will not work
-        '/': _createRoute(ProductsPage(_products, _addProduct, _deleteProduct)),
-        '/admin': _createRoute(ProductAdminPage())
+        '/': _createRoute(AuthPage()),
+        '/home': _createRoute(ProductsPage(products: _products)),
+        '/admin': _createRoute(ProductAdminPage(
+            addProduct: _addProduct, deleteProduct: _deleteProduct))
       },
       //! Only is triggered when not configured on the main `routes:` attribute
       onGenerateRoute: (RouteSettings routerSettings) {
@@ -100,8 +102,7 @@ class MyAppState extends State<MyApp> {
       //! Sort of fallback page to redirect when some route was not more valid
       onUnknownRoute: (RouteSettings unknownRouterSettings) {
         return MaterialPageRoute(
-            builder: _createRoute(
-                ProductsPage(_products, _addProduct, _deleteProduct)));
+            builder: _createRoute(ProductsPage(products: _products)));
       },
     );
   }

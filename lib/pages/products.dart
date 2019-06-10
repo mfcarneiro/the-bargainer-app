@@ -1,12 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:bargainer_app/product_manager.dart';
+import '../product_manager.dart';
 
 class ProductsPage extends StatelessWidget {
-  final List<Map<String, String>> products;
-  final Function addProduct;
-  final Function deleteProduct;
+  final List<Map<String, dynamic>> products;
 
-  ProductsPage(this.products, this.addProduct, this.deleteProduct);
+  ProductsPage({this.products});
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +38,7 @@ class ProductsPage extends StatelessWidget {
       //! --> Using `Positional arguments`
       //! --> The same name passed by signature argument, need to be passed when it's called
       //! E.g `ProductManager(startingProduct: 'Sweet Potato')`
-      body: ProductManager(products, addProduct, deleteProduct),
+      body: ProductManager(products: products),
     );
   }
 }
