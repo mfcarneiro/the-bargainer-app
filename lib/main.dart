@@ -94,7 +94,11 @@ class MyAppState extends State<MyApp> {
           final int index = int.parse(routerPath[2]);
           return MaterialPageRoute<bool>(
               builder: (BuildContext context) => ProductPage(
-                  _products[index]['title'], _products[index]['image']));
+                    title: _products[index]['title'],
+                    imageUrl: _products[index]['image'],
+                    description: _products[index]['description'],
+                    price: _products[index]['price'],
+                  ));
         }
 
         return null;
