@@ -3,6 +3,9 @@
 //! This behavior exists because every file on Flutter works standalone
 import 'package:flutter/material.dart';
 
+// Widgets
+import '../products/product_card.dart';
+
 class Products extends StatelessWidget {
   //* The `final` keyword it is the same convention to not mutate the data
   final List<Map<String, dynamic>> products;
@@ -11,54 +14,14 @@ class Products extends StatelessWidget {
   // Products([this.products = const []]);
   Products({this.products});
 
-  Widget _buildProductItem(BuildContext context, int index) {
-    return Card(
-      child: Column(
-        //* --> <Widget> It's a generic type on dart (In this case, A generic array type)
-        children: <Widget>[
-          //* --> On Dart, When use a dot notation, it means an constuctor, accessing the wanted feature
-          Image.asset(
-            products[index]['image'],
-          ),
-          Text(products[index]['title']),
-          ButtonBar(
-            alignment: MainAxisAlignment.center,
-            children: <Widget>[
-              FlatButton(
-                  child: Text('Details'),
-                  //* Navigator can be used because lives under the MaterialApp()
-                  //* And MaterialApp() is imported by flutter/material
-                  //* MaterialPageRoute() gives the transaction effects
-                  //! onPressed: () => Navigator.push( <T>
-                  //! old way
-                  // onPressed: () => Navigator.push<bool>(
-                  //         //* The push method is a Generic, so it can be configured any type of data
-                  //         //! THe push method return a Future method
-                  //         //! This Future behaves same as a Javascript Promise
-                  //         context,
-                  //         MaterialPageRoute(
-                  //             builder: (BuildContext context) => ProductPage(
-                  //                 products[index]['title'],
-                  //                 products[index]['image']))).then((bool value) {
-                  //       if (value) {
-                  //         deleteProduct(index);
-                  //       }
-                  //     }),
-                  onPressed: () => Navigator.pushNamed<bool>(
-                      context, '/product/' + index.toString()))
-            ],
-          )
-        ],
-      ),
-    );
-  }
-
   Widget _buildProductList() {
     Widget productCards;
 
     if (products.length > 0) {
       productCards = ListView.builder(
-          itemBuilder: _buildProductItem, itemCount: products.length);
+          padding: EdgeInsets.only(bottom: 10.0),
+          itemBuilder: (BuildContext context, index) => ProductCard(product: products[index], productIndex: index,),
+          itemCount: products.length);
     } else {
       productCards = Center(
         child: Text('No Products were found'),

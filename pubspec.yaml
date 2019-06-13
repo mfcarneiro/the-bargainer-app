@@ -1,4 +1,4 @@
-name: bargainer_app
+name: the_bargainer_app
 description: New way to bargain your gears.
 
 # The following defines the version and build number for your application.
@@ -11,7 +11,7 @@ description: New way to bargain your gears.
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.0.0-alpha.1
 
 environment:
   sdk: ">=2.1.0 <3.0.0"
@@ -42,6 +42,7 @@ flutter:
   assets:
     - assets/food.jpg
     - assets/bargaining-icon.png
+    - assets/background.jpg
   #  - images/a_dot_burr.jpeg
   #  - images/a_dot_ham.jpeg
   # An image asset can refer to one or more resolution-specific "variants", see
