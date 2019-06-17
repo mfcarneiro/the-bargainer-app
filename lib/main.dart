@@ -45,10 +45,7 @@ void main() => runApp(MyApp());
 // }
 
 class MyApp extends StatefulWidget {
-  @override
-  State<StatefulWidget> createState() {
-    return MyAppState();
-  }
+  State createState() => MyAppState();
 }
 
 class MyAppState extends State<MyApp> {
@@ -66,6 +63,12 @@ class MyAppState extends State<MyApp> {
     });
   }
 
+  void _updateProduct(int index, Map<String, dynamic> product) {
+    setState(() {
+      _products[index] = product;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -74,13 +77,13 @@ class MyAppState extends State<MyApp> {
           primarySwatch: Colors.deepPurple,
           accentColor: Colors.deepOrange),
       // home: AuthPage(),
-      //! Can be use only `admin` but the slash is a indentifier
+      //! Can be use only `admin` but the slash is a identifier
       routes: {
         //! Using the `/` it's the same way of using home attribute, use one or another, both will not work
         '/': _createRoute(AuthPage()),
         '/home': _createRoute(ProductsPage(products: _products)),
         '/admin': _createRoute(ProductAdminPage(
-            addProduct: _addProduct, deleteProduct: _deleteProduct))
+            _addProduct, _deleteProduct, _products, _updateProduct))
       },
       //! Only is triggered when not configured on the main `routes:` attribute
       onGenerateRoute: (RouteSettings routerSettings) {
@@ -127,7 +130,7 @@ Function _createRoute(Widget page) {
 //           primarySwatch: Colors.deepPurple,
 //           accentColor: Colors.deepOrange),
 //       // home: AuthPage(),
-//       //! Can be use only `admin` but the slash is a indentifier
+//       //! Can be use only `admin` but the slash is a identifier
 //       routes: {
 //         //! Using the `/` it's the same way of using home attribute, use one or another, both will not work
 //         '/': _createRoute(ProductsPage()),
@@ -154,5 +157,5 @@ Function _createRoute(Widget page) {
 //   }
 // }
 
-//* Flutter works similar to Android, having a stack of pages  (like Activicty stack)
+//* Flutter works similar to Android, having a stack of pages  (like Activity stack)
 //* Each route that was pushed, go on top of the stack
