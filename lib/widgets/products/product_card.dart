@@ -42,7 +42,7 @@ class ProductCard extends StatelessWidget {
         child: Column(
             //* --> <Widget> It's a generic type on dart (In this case, A generic array type)
             children: <Widget>[
-              //* --> On Dart, When use a dot notation, it means an constuctor, accessing the wanted feature
+              //* --> On Dart, When use a dot notation, it means an constructor, accessing the wanted feature
               Image.asset(
                 product['image'],
               ),
