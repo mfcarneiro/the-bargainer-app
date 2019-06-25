@@ -1,28 +1,35 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 import 'dart:async'; //! Need to import to be able to use Future method
 
 // Widgets
 import '../widgets/products/price_chip.dart';
 import '../widgets/basic_widgets/defaul_title.dart';
 
-class ProductPage extends StatelessWidget {
-  final String title;
-  final String imageUrl;
-  final double price;
-  final String description;
+// Models
+import '../models/product.dart';
 
-  ProductPage({this.title, this.imageUrl, this.price, this.description});
+// Scoped Models
+import '../scoped_models/scoped_main.dart';
+
+class ProductPage extends StatelessWidget {
+  final int productIndex;
+
+  ProductPage(this.productIndex);
 
   @override
   Widget build(BuildContext context) {
     //! WillPopScope will wrap the widget to handle the back button of android and Toolbar
     //! When implemented this feature, will block by default the navigation
-    return WillPopScope(
-        onWillPop: () {
-          Navigator.pop(context, false);
-          return Future.value(false);
-        },
-        child: Scaffold(
+    return WillPopScope(onWillPop: () {
+      Navigator.pop(context, false);
+
+      return Future.value(false);
+    }, child: ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      final Product products = model.allProducts[productIndex];
+
+      return Scaffold(
           appBar: AppBar(
             title: Text('Product details'),
           ),
@@ -30,7 +37,7 @@ class ProductPage extends StatelessWidget {
             child: Column(
               children: <Widget>[
                 Image.asset(
-                  imageUrl,
+                  products.image,
                   repeat: ImageRepeat.noRepeat,
                 ),
                 Expanded(
@@ -47,12 +54,12 @@ class ProductPage extends StatelessWidget {
                               children: <Widget>[
                                 Padding(
                                     padding: EdgeInsets.only(right: 20.0),
-                                    child: DefaultTitle(title: title)),
-                                PriceChip(price: price),
+                                    child: DefaultTitle(title: products.title)),
+                                PriceChip(price: products.price),
                               ],
                             ),
                             Text(
-                              description,
+                              products.description,
                               maxLines: 4,
                             )
                           ],
@@ -63,35 +70,7 @@ class ProductPage extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-        ));
+          ));
+    }));
   }
 }
-
-// _showWarningDialog(BuildContext context) {
-//   showDialog(
-//       context: context,
-//       builder: (BuildContext context) {
-//         return AlertDialog(
-//           title: Text("Delete the current item?"),
-//           content: Text("This Action can not be undone!"),
-//           actions: <Widget>[
-//             FlatButton(
-//               child: Text('Cancel'),
-//               onPressed: () {
-//                 Navigator.pop(context);
-//               },
-//             ),
-//             RaisedButton(
-//               child: Text('OK'),
-//               onPressed: () {
-//                 Navigator.pop(context);
-//                 //! Passing the `true` value that indicates for the route that is expecting a Future (Promise) value
-//                 //! to erase the current product
-//                 Navigator.pop(context, true);
-//               },
-//             )
-//           ],
-//         );
-//       });
-// }

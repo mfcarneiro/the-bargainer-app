@@ -1,23 +1,19 @@
-import "package:flutter/material.dart";
+import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
+import 'package:scoped_model/scoped_model.dart';
+
+// Model
+import '../models/product.dart';
+
+// Scope models
+import '../scoped_models/scoped_main.dart';
 
 class ProductEditPage extends StatefulWidget {
-  final Function addProduct;
-  final Function updateProduct;
-  final Map<String, dynamic> product;
-  final int productIndex;
-
-  ProductEditPage(
-      {this.addProduct, this.updateProduct, this.product, this.productIndex});
-
   @override
   _ProductEditPageState createState() => _ProductEditPageState();
 }
 
 class _ProductEditPageState extends State<ProductEditPage> {
-//  String _productName;
-//  num _productPrice;
-//  String _productDescription; \/
-
 // -> Using a Form now, we can create a Map to hold all the fields and contents
   final Map<String, dynamic> _formData = {
     'image': 'assets/food.jpg',
@@ -28,7 +24,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
 
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
 
-  Widget _buildPageContent(BuildContext context) {
+  Widget _buildPageContent(BuildContext context, Product product) {
     return GestureDetector(
         onTap: () {
           // This ensures the keyboard will close automatically when clicked on some screen areas.
@@ -52,45 +48,37 @@ class _ProductEditPageState extends State<ProductEditPage> {
                           2,
                     ),
                     children: <Widget>[
-                      //! With a ListView, we can not manipulate trough a Container with with property
+                      //! With a ListView, we can not manipulate trough a Container with 'width' property
                       //! By default, a ListView always will fit all the room for width/height sizes
                       //! It will be needed a padding to control the internal list space
                       Container(
                           padding: EdgeInsets.only(bottom: 8.0),
-                          child: _buildNameTextField()),
+                          child: _buildNameTextField(product)),
                       Container(
                           padding: EdgeInsets.only(bottom: 8.0),
-                          child: _buildPriceTextField()),
+                          child: _buildPriceTextField(product)),
                       Container(
                           padding: EdgeInsets.only(bottom: 8.0),
-                          child: _buildDescriptionTextField()),
-                      RaisedButton(
-                        color: Theme.of(context).accentColor,
-                        textColor: Colors.white,
-                        child: Text("Save product"),
-                        onPressed:
-                            _submitProduct, // remember! -> only referencing the method, passing the name, not call with () (working directly with a Widget)
-                      ),
+                          child: _buildDescriptionTextField(product)),
+                      _buildSubmitButton()
                     ]))));
   }
 
-  String notEmptyProduct({String fieldName}) {
-    if (widget.product == null) {
-      return '';
-    }
-
-    dynamic currentField = widget.product[fieldName];
-
-    if (currentField is double) {
-      return currentField.toString();
-    }
-
-    return currentField;
+  Widget _buildSubmitButton() {
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      return RaisedButton(
+          color: Theme.of(context).accentColor,
+          textColor: Colors.white,
+          child: Text('Save product'),
+          onPressed: () => _submitProduct(model.addProduct, model.updateProduct,
+              model.setSelectedProductIndex, model.getSelectedProductIndex));
+    });
   }
 
-  Widget _buildNameTextField() {
+  Widget _buildNameTextField(Product product) {
     return TextFormField(
-      initialValue: notEmptyProduct(fieldName: 'title'),
+      initialValue: product?.title ?? '',
       decoration: InputDecoration(
         border: OutlineInputBorder(),
         labelText: 'Title',
@@ -108,9 +96,14 @@ class _ProductEditPageState extends State<ProductEditPage> {
     );
   }
 
-  Widget _buildPriceTextField() {
+  _buildPriceTextField(Product product) {
+    // '??' null checker example
+    //  String initValue = '' ?? product.price.toString();
+
     return TextFormField(
-      initialValue: notEmptyProduct(fieldName: 'price'),
+      initialValue: product?.price == null ? '' : product?.price.toString(),
+      //! .digitsOnly will ignore the dot/comma.
+      //? inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
       keyboardType:
           TextInputType.numberWithOptions(decimal: true, signed: false),
       decoration: InputDecoration(
@@ -128,18 +121,18 @@ class _ProductEditPageState extends State<ProductEditPage> {
         }
       },
       onSaved: (String value) {
-        // As known, the 'setState()' will updates every time when the value is changed
-        // Using the 'TextFormField' is not needed anymore,
-        // Now only verify when the submit method is triggered
-        // -> The behavior will persist, is saving the given input, but in no longer re-render the whole form
+        //! As known, the 'setState()' will updates every time when the value is changed
+        //! Using the 'TextFormField' is not needed anymore,
+        //! Now only verify when the submit method is triggered
+        //! -> The behavior will persist, is saving the given input, but in no longer re-render the whole form
         _formData['price'] = double.parse(value);
       },
     );
   }
 
-  Widget _buildDescriptionTextField() {
+  Widget _buildDescriptionTextField(Product product) {
     return TextFormField(
-      initialValue: notEmptyProduct(fieldName: 'description'),
+      initialValue: product?.description ?? '',
       maxLines: 4,
       decoration: InputDecoration(
         border: OutlineInputBorder(),
@@ -158,21 +151,25 @@ class _ProductEditPageState extends State<ProductEditPage> {
     );
   }
 
-  void _submitProduct() {
+  void _submitProduct(Function addProduct, Function updateProduct,
+      Function setSelectedProduct, int selectedProductIndex) {
     // _formKey.currentState.validate() will only allow when all the fields are fulfilled correctly
     if (!_formKey.currentState.validate()) return;
 
-    // -> this allow now to use onSave() on each TextFormField added (two-way data binding)
+    //! -> this allow now to use onSave() on each TextFormField added (two-way data binding)
     //! With a StateFullWidget, we can bind the constructor parameters with `widget` property
     _formKey.currentState.save();
 
-    if (widget.product == null) {
-      widget.addProduct(_formData);
+    if (selectedProductIndex == null) {
+      addProduct(_formData['image'], _formData['title'],
+          _formData['description'], _formData['price']);
     } else {
-      widget.updateProduct(widget.productIndex, _formData);
+      updateProduct(_formData['image'], _formData['title'],
+          _formData['description'], _formData['price']);
     }
 
-    Navigator.pushReplacementNamed(context, '/home');
+    Navigator.pushReplacementNamed(context, '/home')
+        .then((_) => setSelectedProduct(null));
   }
 
   double _deviceListPaddingTarget(BuildContext context,
@@ -190,16 +187,19 @@ class _ProductEditPageState extends State<ProductEditPage> {
 
   @override
   Widget build(BuildContext context) {
-    if (widget.product == null) {
-      return _buildPageContent(context);
-    }
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      if (model.getSelectedProductIndex == null) {
+        return _buildPageContent(context, model.getSelectedProduct);
+      }
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Edit contact'),
-      ),
-      body: _buildPageContent(context),
-    );
+      return Scaffold(
+        appBar: AppBar(
+          title: Text('Edit contact'),
+        ),
+        body: _buildPageContent(context, model.getSelectedProduct),
+      );
+    });
   }
 }
 
