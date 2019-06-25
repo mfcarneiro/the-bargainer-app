@@ -19,6 +19,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  scoped_model: ^1.0.1
   cupertino_icons: ^0.1.2
 
 dev_dependencies:

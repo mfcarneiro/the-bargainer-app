@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
+
+// Scoped model
+import '../scoped_models/scoped_main.dart';
 
 class AuthPage extends StatefulWidget {
   _AuthPageState createState() => _AuthPageState();
@@ -70,10 +74,13 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  void _submitLogin() {
+  void _submitLogin(Function doLogin) {
     if (!_loginForm.currentState.validate()) return;
 
     _loginForm.currentState.save();
+
+    doLogin(email: _loginInputs['email'], password: _loginInputs['password']);
+
     Navigator.pushReplacementNamed(context, '/home');
   }
 
@@ -140,15 +147,19 @@ class _AuthPageState extends State<AuthPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.end,
                         children: <Widget>[
-                          RaisedButton(
-                              child: Container(
-                                child: Text('Login'),
-                              ),
-                              shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(05)),
-                              color: Theme.of(context).accentColor,
-                              textColor: Colors.white,
-                              onPressed: _submitLogin)
+                          ScopedModelDescendant<MainModel>(builder:
+                              (BuildContext context, Widget child,
+                                  MainModel model) {
+                            return RaisedButton(
+                                child: Container(
+                                  child: Text('Login'),
+                                ),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(05)),
+                                color: Theme.of(context).accentColor,
+                                textColor: Colors.white,
+                                onPressed: () => _submitLogin(model.doLogin));
+                          })
                         ],
                       )
                     ],

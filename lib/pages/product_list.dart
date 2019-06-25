@@ -1,29 +1,37 @@
 import 'package:flutter/material.dart';
+import 'package:scoped_model/scoped_model.dart';
 
 // Widget
 import './product_edit.dart';
 
+// Scoped Model
+import '../scoped_models/scoped_main.dart';
+
 class ProductListPage extends StatelessWidget {
-  final Function updateProduct;
-  final Function deleteProduct;
-  final List<Map<String, dynamic>> productList;
-
-  ProductListPage(this.productList, this.updateProduct, this.deleteProduct);
-
-  _buildProductEditor(BuildContext context, int index) {
+  _buildProductEditPage(BuildContext context, MainModel model) {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (BuildContext context) {
-      return ProductEditPage(
-        product: productList[index],
-        updateProduct: updateProduct,
-        productIndex: index,
-      );
-    }));
+      return ProductEditPage();
+    })).then((_) => model.setSelectedProductIndex(null));
   }
 
-  DismissDirection _dismissEndToStart(DismissDirection direction, int index) {
+  Widget _buildEditButton(BuildContext context, int index) {
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      return IconButton(
+          icon: Icon(Icons.mode_edit),
+          onPressed: () {
+            model.setSelectedProductIndex(index);
+            _buildProductEditPage(context, model);
+          });
+    });
+  }
+
+  DismissDirection _dismissEndToStart(
+      {@required DismissDirection direction,
+      @required Function deleteProduct}) {
     if (direction == DismissDirection.endToStart) {
-      deleteProduct(index);
+      deleteProduct();
     }
 
     return direction;
@@ -31,55 +39,57 @@ class ProductListPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: ListView.builder(
-        itemBuilder: (BuildContext context, int index) {
-          // -> Dismissible allows to swipe the current item to do an action (e.g: Delete the selected item on the list)
-          return Dismissible(
-              direction: DismissDirection.endToStart,
-              key: Key(productList[index]['title']),
-              onDismissed: (DismissDirection direction) {
-                _dismissEndToStart(direction, index);
-              },
-              background: Container(
-                color: Colors.red,
-                padding: EdgeInsets.only(right: 10.0),
-                child: Row(
-                  textDirection: TextDirection.rtl,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: <Widget>[
-                    Icon(
-                      Icons.delete,
-                      color: Colors.white,
-                    ),
-                    Container(
-                      padding: EdgeInsets.only(right: 10.0),
-                      child: Text(
-                        'Delete',
-                        style: TextStyle(
-                            color: Colors.white, fontWeight: FontWeight.w500),
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      return Container(
+        child: ListView.builder(
+          itemBuilder: (BuildContext context, int index) {
+            //! -> Dismissible allows to swipe the current item to do an action (e.g: Delete the selected item on the list)
+            return Dismissible(
+                direction: DismissDirection.endToStart,
+                key: Key(model.allProducts[index].title),
+                onDismissed: (DismissDirection direction) {
+                  _dismissEndToStart(
+                      direction: direction, deleteProduct: model.deleteProduct);
+                },
+                background: Container(
+                  color: Colors.red,
+                  padding: EdgeInsets.only(right: 10.0),
+                  child: Row(
+                    textDirection: TextDirection.rtl,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: <Widget>[
+                      Icon(
+                        Icons.delete,
+                        color: Colors.white,
                       ),
-                    )
-                  ],
+                      Container(
+                        padding: EdgeInsets.only(right: 10.0),
+                        child: Text(
+                          'Delete',
+                          style: TextStyle(
+                              color: Colors.white, fontWeight: FontWeight.w500),
+                        ),
+                      )
+                    ],
+                  ),
                 ),
-              ),
-              child: Column(children: <Widget>[
-                ListTile(
-                    leading: CircleAvatar(
-                      backgroundImage: AssetImage(productList[index]['image']),
-                    ),
-                    title: Text(productList[index]['title']),
-                    subtitle:
-                        Text('\$ ${productList[index]['price'].toString()}'),
-                    trailing: IconButton(
-                      icon: Icon(Icons.mode_edit),
-                      onPressed: () => _buildProductEditor(context, index),
-                    )),
-                Divider()
-              ]));
-        },
-        itemCount: productList.length,
-      ),
-    );
+                child: Column(children: <Widget>[
+                  ListTile(
+                      leading: CircleAvatar(
+                        backgroundImage:
+                            AssetImage(model.allProducts[index].image),
+                      ),
+                      title: Text(model.allProducts[index].title),
+                      subtitle: Text(
+                          '\$ ${model.allProducts[index].price.toString()}'),
+                      trailing: _buildEditButton(context, index)),
+                  Divider()
+                ]));
+          },
+          itemCount: model.allProducts.length,
+        ),
+      );
+    });
   }
 }
