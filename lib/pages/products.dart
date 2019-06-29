@@ -7,7 +7,21 @@ import '../widgets/products/products.dart';
 // Scoped model
 import '../scoped_models/scoped_main.dart';
 
-class ProductsPage extends StatelessWidget {
+class ProductsPage extends StatefulWidget {
+  final MainModel model;
+
+  ProductsPage({@required this.model});
+
+  ProductsPageState createState() => ProductsPageState();
+}
+
+class ProductsPageState extends State<ProductsPage> {
+  @override
+  void initState() {
+    widget.model.fetchProducts();
+    super.initState();
+  }
+
   Widget _buildSideDrawer(BuildContext context) {
     return Drawer(
         child: Column(
@@ -25,6 +39,25 @@ class ProductsPage extends StatelessWidget {
         )
       ],
     ));
+  }
+
+  Widget _buildProductList() {
+    return ScopedModelDescendant<MainModel>(
+        builder: (BuildContext context, Widget child, MainModel model) {
+      Widget mainContent = Center(child: Text('No Products Found!'));
+
+      if (model.getDisplayedProducts.length > 0 && !model.getLoadingProcess) {
+        mainContent = Products();
+      } else if (model.getLoadingProcess) {
+        mainContent = Center(child: CircularProgressIndicator());
+      }
+
+      return RefreshIndicator(
+          //! Refresh Indicator create the "Pull to refresh" feature
+          //! Since this Widget have their own spinner,  `onRefresh` method needs to receive a Future method
+          onRefresh: model.fetchProducts,
+          child: mainContent);
+    });
   }
 
   @override
@@ -51,7 +84,7 @@ class ProductsPage extends StatelessWidget {
           ),
         ],
       ),
-      body: Products(),
+      body: _buildProductList(),
     );
   }
 }

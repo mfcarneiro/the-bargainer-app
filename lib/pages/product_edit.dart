@@ -16,7 +16,8 @@ class ProductEditPage extends StatefulWidget {
 class _ProductEditPageState extends State<ProductEditPage> {
 // -> Using a Form now, we can create a Map to hold all the fields and contents
   final Map<String, dynamic> _formData = {
-    'image': 'assets/food.jpg',
+    'image':
+        'https://static3.depositphotos.com/1005741/195/i/950/depositphotos_1950369-stock-photo-colorful-licorice-candy.jpg',
     'title': null,
     'price': null,
     'description': null
@@ -67,12 +68,17 @@ class _ProductEditPageState extends State<ProductEditPage> {
   Widget _buildSubmitButton() {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
-      return RaisedButton(
-          color: Theme.of(context).accentColor,
-          textColor: Colors.white,
-          child: Text('Save product'),
-          onPressed: () => _submitProduct(model.addProduct, model.updateProduct,
-              model.setSelectedProductIndex, model.getSelectedProductIndex));
+      return model.getLoadingProcess
+          ? Center(child: CircularProgressIndicator())
+          : RaisedButton(
+              color: Theme.of(context).accentColor,
+              textColor: Colors.white,
+              child: Text('Save'),
+              onPressed: () => _submitProduct(
+                  model.addProduct,
+                  model.updateProduct,
+                  model.setSelectedProductId,
+                  model.getSelectedProductIndex));
     });
   }
 
@@ -160,16 +166,38 @@ class _ProductEditPageState extends State<ProductEditPage> {
     //! With a StateFullWidget, we can bind the constructor parameters with `widget` property
     _formKey.currentState.save();
 
-    if (selectedProductIndex == null) {
+    if (selectedProductIndex == -1) {
       addProduct(_formData['image'], _formData['title'],
-          _formData['description'], _formData['price']);
+              _formData['description'], _formData['price'])
+          .then((bool sucess) {
+        if (!sucess) {
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: Text('Oops!'),
+                content: Text('Please, Try again later'),
+                actions: <Widget>[
+                  RaisedButton(
+                    child: Text('Ok'),
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                  )
+                ],
+              );
+            },
+          );
+        }
+
+        navigateTo(context, path: '/home');
+      }).then((_) => setSelectedProduct(null));
     } else {
       updateProduct(_formData['image'], _formData['title'],
-          _formData['description'], _formData['price']);
+              _formData['description'], _formData['price'])
+          .then((_) => navigateTo(context, path: '/products')
+              .then((_) => setSelectedProduct(null)));
     }
-
-    Navigator.pushReplacementNamed(context, '/home')
-        .then((_) => setSelectedProduct(null));
   }
 
   double _deviceListPaddingTarget(BuildContext context,
@@ -185,11 +213,15 @@ class _ProductEditPageState extends State<ProductEditPage> {
     return (deviceWidth - target);
   }
 
+  Future navigateTo(BuildContext contex, {@required String path}) {
+    return Navigator.pushReplacementNamed(context, path);
+  }
+
   @override
   Widget build(BuildContext context) {
     return ScopedModelDescendant<MainModel>(
         builder: (BuildContext context, Widget child, MainModel model) {
-      if (model.getSelectedProductIndex == null) {
+      if (model.getSelectedProductIndex == -1) {
         return _buildPageContent(context, model.getSelectedProduct);
       }
 

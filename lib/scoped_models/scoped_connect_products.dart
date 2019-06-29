@@ -1,4 +1,6 @@
 import 'package:scoped_model/scoped_model.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 // Models
 import '../models/product.dart';
@@ -6,23 +8,11 @@ import '../models/user.dart';
 
 mixin ConnectedProductsModel on Model {
   List<Product> _products = [];
-  int _selectedProductIndex;
+  String _selectedProductId;
   User _authenticatedUser;
+  bool _isLoading = false;
 
-  void addProduct(
-      String image, String title, String description, double price) {
-    final Product newProduct = Product(
-        title: title,
-        image: image,
-        description: description,
-        price: price,
-        isFavorite: false,
-        userEmail: _authenticatedUser.email,
-        userId: _authenticatedUser.id);
-
-    _products.add(newProduct);
-    notifyListeners();
-  }
+  set loadingProcess(loadingProcess) => _isLoading = loadingProcess;
 }
 
 mixin ProductsModel on ConnectedProductsModel {
@@ -43,43 +33,144 @@ mixin ProductsModel on ConnectedProductsModel {
     return List.from(_products);
   }
 
-  int get getSelectedProductIndex => _selectedProductIndex;
+  String get getSelectedProductId => _selectedProductId;
 
   bool get displayFavoritesOnly => _showFavorites;
 
-  void deleteProduct() {
-    _products.removeAt(_selectedProductIndex);
-    notifyListeners();
+  int get getSelectedProductIndex {
+    return _products.indexWhere((Product product) {
+      return product.id == _selectedProductId;
+    });
   }
 
-  void updateProduct(
-      String image, String title, String description, double price) {
-    final Product updatedProduct = Product(
-        title: title,
-        image: image,
-        description: description,
-        price: price,
-        isFavorite: getSelectedProduct.isFavorite,
-        userEmail: getSelectedProduct.userEmail,
-        userId: getSelectedProduct.userId);
+  void setSelectedProductId(String id) => _selectedProductId = id;
 
-    _products[_selectedProductIndex] = updatedProduct;
+  Future<bool> addProduct(
+      String image, String title, String description, double price) async {
+    loadingProcess = true;
     notifyListeners();
-  }
 
-  void setSelectedProductIndex(int index) => _selectedProductIndex = index;
+    final Map<String, dynamic> productData = {
+      'image':
+          'https://static3.depositphotos.com/1005741/195/i/950/depositphotos_1950369-stock-photo-colorful-licorice-candy.jpg',
+      'title': title,
+      'price': price,
+      'description': description,
+      'userEmail': _authenticatedUser.email,
+      'userId': _authenticatedUser.id,
+      'isFavorite': false
+    };
+
+    try {
+      final http.Response response = await http.post(
+          'https://u-the-bargainer-app.firebaseio.com/products.json',
+          body: json.encode(productData));
+
+      if (response.statusCode != 200 && response.statusCode != 201) {
+        loadingProcess = false;
+        notifyListeners();
+
+        return false;
+      }
+
+      final Map<String, dynamic> responseData = json.decode(response.body);
+      final Product newProduct = Product(
+          id: responseData['name'],
+          title: title,
+          image: image,
+          description: description,
+          price: price,
+          isFavorite: false,
+          userEmail: _authenticatedUser.email,
+          userId: _authenticatedUser.id);
+
+      _products.add(newProduct);
+
+      loadingProcess = false;
+
+      notifyListeners();
+    } catch (error) {
+      loadingProcess = false;
+      print(error);
+    }
+
+    return true;
+  }
 
   Product get getSelectedProduct {
-    if (_selectedProductIndex == null) {
+    if (_selectedProductId == null) {
       return null;
     }
 
-    return _products[_selectedProductIndex];
+    //! .firstWhere works like a filter or a dynamic getter on vue
+    //!  Will return a single item, not a list
+    return _products.firstWhere((Product product) {
+      return product.id == _selectedProductId;
+    });
+  }
+
+  Future<bool> deleteProduct() {
+    _isLoading = true;
+
+    return http
+        .delete(
+            'https://u-the-bargainer-app.firebaseio.com/products/${getSelectedProduct.id}.json')
+        .then((http.Response response) {
+      _isLoading = false;
+
+      _products.removeAt(getSelectedProductIndex);
+      setSelectedProductId(null);
+
+      notifyListeners();
+
+      return true;
+    });
+  }
+
+  Future<bool> updateProduct(
+      String image, String title, String description, double price) {
+    _isLoading = true;
+    notifyListeners();
+
+    final Map<String, dynamic> updateProduct = {
+      'image':
+          'https://static3.depositphotos.com/1005741/195/i/950/depositphotos_1950369-stock-photo-colorful-licorice-candy.jpg',
+      'title': title,
+      'price': price,
+      'description': description,
+      'isFavorite': getSelectedProduct.isFavorite,
+      'userEmail': getSelectedProduct.userEmail,
+      'userId': getSelectedProduct.userId
+    };
+
+    return http
+        .put(
+            'https://u-the-bargainer-app.firebaseio.com/products/${getSelectedProduct.id}.json',
+            body: json.encode(updateProduct))
+        .then((http.Response response) {
+      _isLoading = false;
+      final Product updatedProduct = Product(
+          id: getSelectedProduct.id,
+          title: title,
+          image: image,
+          description: description,
+          price: price,
+          isFavorite: getSelectedProduct.isFavorite,
+          userEmail: getSelectedProduct.userEmail,
+          userId: getSelectedProduct.userId);
+
+      _products[getSelectedProductIndex] = updatedProduct;
+
+      notifyListeners();
+
+      return true;
+    });
   }
 
   void toggleFavoriteProductStatus() {
     final bool isCurrentFavorite = !getSelectedProduct.isFavorite;
     final Product updatedProduct = Product(
+        id: getSelectedProduct.id,
         image: getSelectedProduct.image,
         title: getSelectedProduct.title,
         price: getSelectedProduct.price,
@@ -88,7 +179,7 @@ mixin ProductsModel on ConnectedProductsModel {
         userEmail: getSelectedProduct.userEmail,
         userId: getSelectedProduct.userId);
 
-    _products[_selectedProductIndex] = updatedProduct;
+    _products[getSelectedProductIndex] = updatedProduct;
 
     //! -> Notifies to repaint (re-render) the current model that is using the method
     //! -> And updates at the runtime the Widget for the user
@@ -99,6 +190,44 @@ mixin ProductsModel on ConnectedProductsModel {
   void toggleDisplayMode() {
     _showFavorites = !_showFavorites;
     notifyListeners();
+  }
+
+  Future<Null> fetchProducts() {
+    loadingProcess = true;
+
+    return http
+        .get('https://u-the-bargainer-app.firebaseio.com/products.json')
+        .then((http.Response response) {
+      final List<Product> fetchedProductList = [];
+
+      if (response.body == 'null') {
+        loadingProcess = false;
+        notifyListeners();
+
+        return;
+      }
+
+      json.decode(response.body)
+        ..forEach((String productId, dynamic productData) {
+          fetchedProductList.add((Product(
+              id: productId,
+              image: productData['image'],
+              title: productData['title'],
+              isFavorite: productData['isFavorite'],
+              description: productData['description'],
+              price: productData['price'],
+              userEmail: productData['userEmail'],
+              userId: productData['userId'])));
+        });
+
+      _products = fetchedProductList;
+
+      loadingProcess = false;
+
+      notifyListeners();
+
+      setSelectedProductId(null);
+    });
   }
 }
 
@@ -112,4 +241,8 @@ mixin UserModel on ConnectedProductsModel {
     _authenticatedUser =
         User(id: 'adsa1312d', email: email, password: password);
   }
+}
+
+mixin UtilityModel on ConnectedProductsModel {
+  bool get getLoadingProcess => _isLoading;
 }

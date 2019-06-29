@@ -7,12 +7,27 @@ import './product_edit.dart';
 // Scoped Model
 import '../scoped_models/scoped_main.dart';
 
-class ProductListPage extends StatelessWidget {
+class ProductListPage extends StatefulWidget {
+  final MainModel model;
+
+  ProductListPage({@required this.model});
+
+  @override
+  _ProductListPageState createState() => _ProductListPageState();
+}
+
+class _ProductListPageState extends State<ProductListPage> {
+  @override
+  void initState() {
+    widget.model.fetchProducts();
+    super.initState();
+  }
+
   _buildProductEditPage(BuildContext context, MainModel model) {
     Navigator.of(context)
         .push(MaterialPageRoute(builder: (BuildContext context) {
       return ProductEditPage();
-    })).then((_) => model.setSelectedProductIndex(null));
+    })).then((_) => model.setSelectedProductId(null));
   }
 
   Widget _buildEditButton(BuildContext context, int index) {
@@ -21,7 +36,7 @@ class ProductListPage extends StatelessWidget {
       return IconButton(
           icon: Icon(Icons.mode_edit),
           onPressed: () {
-            model.setSelectedProductIndex(index);
+            model.setSelectedProductId(model.allProducts[index].id);
             _buildProductEditPage(context, model);
           });
     });
@@ -63,14 +78,6 @@ class ProductListPage extends StatelessWidget {
                         Icons.delete,
                         color: Colors.white,
                       ),
-                      Container(
-                        padding: EdgeInsets.only(right: 10.0),
-                        child: Text(
-                          'Delete',
-                          style: TextStyle(
-                              color: Colors.white, fontWeight: FontWeight.w500),
-                        ),
-                      )
                     ],
                   ),
                 ),
@@ -78,7 +85,7 @@ class ProductListPage extends StatelessWidget {
                   ListTile(
                       leading: CircleAvatar(
                         backgroundImage:
-                            AssetImage(model.allProducts[index].image),
+                            NetworkImage(model.allProducts[index].image),
                       ),
                       title: Text(model.allProducts[index].title),
                       subtitle: Text(
