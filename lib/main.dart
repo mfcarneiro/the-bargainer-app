@@ -8,6 +8,9 @@ import './pages/product.dart';
 import './pages/product_admin.dart';
 import './pages/products.dart';
 
+// Model
+import './models/product.dart';
+
 // Scoped Models
 import './scoped_models/scoped_main.dart';
 
@@ -22,8 +25,9 @@ class MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     // -> Creating this 'ScopedModel' Widget, ensures that Scoped-model will be inject
     // -> Now can be used the reference in other widgets that need the ProductModel instance
+    MainModel mainModel = MainModel();
     return ScopedModel<MainModel>(
-        model: MainModel(), // -> Create the 'injection'
+        model: mainModel, // -> Create the 'injection'
         child: MaterialApp(
           theme: ThemeData(
               brightness: Brightness.light,
@@ -31,8 +35,8 @@ class MyAppState extends State<MyApp> {
               accentColor: Colors.deepOrange),
           routes: {
             '/': _createRoute(AuthPage()),
-            '/home': _createRoute(ProductsPage()),
-            '/admin': _createRoute(ProductAdminPage())
+            '/home': _createRoute(ProductsPage(model: mainModel)),
+            '/admin': _createRoute(ProductAdminPage(model: mainModel))
           },
           //! Only is triggered when not configured on the main `routes:` attribute
           onGenerateRoute: (RouteSettings routerSettings) {
@@ -43,16 +47,22 @@ class MyAppState extends State<MyApp> {
             }
 
             if (routerPath[1] == 'product') {
-              final int index = int.parse(routerPath[2]);
+              final String productId = routerPath[2];
+              final Product product =
+                  mainModel.allProducts.firstWhere((Product product) {
+                return product.id == productId;
+              });
+
               return MaterialPageRoute<bool>(
-                  builder: _createRoute(ProductPage(index)));
+                  builder: _createRoute(ProductPage(product: product)));
             }
 
             return null;
           },
           //! Sort of fallback page to redirect when some route was not more valid
           onUnknownRoute: (RouteSettings unknownRouterSettings) {
-            return MaterialPageRoute(builder: _createRoute(ProductsPage()));
+            return MaterialPageRoute(
+                builder: _createRoute(ProductsPage(model: mainModel)));
           },
         ));
   }

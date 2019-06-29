@@ -9,35 +9,30 @@ import '../widgets/basic_widgets/defaul_title.dart';
 // Models
 import '../models/product.dart';
 
-// Scoped Models
-import '../scoped_models/scoped_main.dart';
-
 class ProductPage extends StatelessWidget {
-  final int productIndex;
+  final Product product;
 
-  ProductPage(this.productIndex);
+  ProductPage({@required this.product});
 
   @override
   Widget build(BuildContext context) {
     //! WillPopScope will wrap the widget to handle the back button of android and Toolbar
     //! When implemented this feature, will block by default the navigation
-    return WillPopScope(onWillPop: () {
-      Navigator.pop(context, false);
+    return WillPopScope(
+        onWillPop: () {
+          Navigator.pop(context, false);
 
-      return Future.value(false);
-    }, child: ScopedModelDescendant<MainModel>(
-        builder: (BuildContext context, Widget child, MainModel model) {
-      final Product products = model.allProducts[productIndex];
-
-      return Scaffold(
-          appBar: AppBar(
-            title: Text('Product details'),
-          ),
-          body: Container(
-            child: Column(
+          return Future.value(false);
+        },
+        child: Scaffold(
+            appBar: AppBar(
+              title: Text('Product details'),
+            ),
+            body: Container(
+                child: Column(
               children: <Widget>[
-                Image.asset(
-                  products.image,
+                Image.network(
+                  product.image,
                   repeat: ImageRepeat.noRepeat,
                 ),
                 Expanded(
@@ -54,12 +49,12 @@ class ProductPage extends StatelessWidget {
                               children: <Widget>[
                                 Padding(
                                     padding: EdgeInsets.only(right: 20.0),
-                                    child: DefaultTitle(title: products.title)),
-                                PriceChip(price: products.price),
+                                    child: DefaultTitle(title: product.title)),
+                                PriceChip(price: product.price),
                               ],
                             ),
                             Text(
-                              products.description,
+                              product.description,
                               maxLines: 4,
                             )
                           ],
@@ -69,8 +64,6 @@ class ProductPage extends StatelessWidget {
                   ),
                 ),
               ],
-            ),
-          ));
-    }));
+            ))));
   }
 }

@@ -34,14 +34,14 @@ class ProductCard extends StatelessWidget {
             icon: Icon(Icons.info_outline),
             splashColor: Colors.deepOrange,
             onPressed: () => Navigator.pushNamed<bool>(
-                context, '/product/' + productIndex.toString())),
+                context, '/product/' + model.allProducts[productIndex].id)),
         IconButton(
             color: Colors.red,
             icon: Icon(model.allProducts[productIndex].isFavorite
                 ? Icons.favorite
                 : Icons.favorite_border),
             onPressed: () {
-              model.setSelectedProductIndex(productIndex);
+              model.setSelectedProductId(model.allProducts[productIndex].id);
               model.toggleFavoriteProductStatus();
             })
       ]);
@@ -56,8 +56,13 @@ class ProductCard extends StatelessWidget {
             //* --> <Widget> It's a generic type on dart (In this case, A generic array type)
             children: <Widget>[
               //* --> On Dart, When use a dot notation, it means an constructor, accessing the wanted feature
-              Image.asset(
-                product.image,
+              FadeInImage(
+                //! Fade in will replace the wanted image for a default one
+                //! until the correct one is downloading
+                placeholder: AssetImage('assets/food.jpg'),
+                image: NetworkImage(
+                  product.image,
+                ),
               ),
               _buildPriceTextRow(context),
               AddressChip(label: 'Blumenau - SC'),
