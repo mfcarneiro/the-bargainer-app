@@ -4,7 +4,7 @@
 
 ## Getting Started
 
-This project is a starting point for a Flutter application.
+The course was reworked and **most of the features used on this repo is outdated**
 
 ## License
 
