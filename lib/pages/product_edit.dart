@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-// Model
 import '../models/product.dart';
 
-// Scope models
 import '../scoped_models/scoped_main.dart';
 
 class ProductEditPage extends StatefulWidget {
@@ -109,7 +107,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
     return TextFormField(
       initialValue: product?.price == null ? '' : product?.price.toString(),
       //! .digitsOnly will ignore the dot/comma.
-      //? inputFormatters: [WhitelistingTextInputFormatter.digitsOnly],
+      //? input formatter: [WhitelistingTextInputFormatter.digitsOnly],
       keyboardType:
           TextInputType.numberWithOptions(decimal: true, signed: false),
       decoration: InputDecoration(
@@ -159,7 +157,7 @@ class _ProductEditPageState extends State<ProductEditPage> {
 
   void _submitProduct(Function addProduct, Function updateProduct,
       Function setSelectedProduct, int selectedProductIndex) {
-    // _formKey.currentState.validate() will only allow when all the fields are fulfilled correctly
+    //! formKey.currentState.validate() will only allow when all the fields are fulfilled correctly
     if (!_formKey.currentState.validate()) return;
 
     //! -> this allow now to use onSave() on each TextFormField added (two-way data binding)
@@ -179,23 +177,20 @@ class _ProductEditPageState extends State<ProductEditPage> {
                 content: Text('Please, Try again later'),
                 actions: <Widget>[
                   RaisedButton(
-                    child: Text('Ok'),
-                    onPressed: () {
-                      Navigator.of(context).pop();
-                    },
-                  )
+                      child: Text('Ok'),
+                      onPressed: () => Navigator.of(context).pop())
                 ],
               );
             },
           );
         }
 
-        navigateTo(context, path: '/home');
+        navigateTo(context, path: '/');
       }).then((_) => setSelectedProduct(null));
     } else {
       updateProduct(_formData['image'], _formData['title'],
               _formData['description'], _formData['price'])
-          .then((_) => navigateTo(context, path: '/products')
+          .then((_) => navigateTo(context, path: '/')
               .then((_) => setSelectedProduct(null)));
     }
   }

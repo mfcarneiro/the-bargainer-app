@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:scoped_model/scoped_model.dart';
 import 'dart:async'; //! Need to import to be able to use Future method
 
 // Widgets

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-// Widgets
-import '../widgets/products/products.dart';
-
-// Scoped model
 import '../scoped_models/scoped_main.dart';
+
+import '../widgets/products/products.dart';
+import '../widgets/basic_widgets/logout_list_tile.dart';
 
 class ProductsPage extends StatefulWidget {
   final MainModel model;
@@ -32,11 +31,14 @@ class ProductsPageState extends State<ProductsPage> {
           title: Text('The Bargainer'),
         ),
         ListTile(
+          leading: Icon(Icons.mode_edit),
           title: Text('Manage Products'),
           onTap: () {
             Navigator.pushReplacementNamed(context, '/admin');
           },
-        )
+        ),
+        Divider(),
+        LogoutListTile()
       ],
     ));
   }

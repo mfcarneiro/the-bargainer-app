@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 
+import '../scoped_models/scoped_main.dart';
+
 import './product_edit.dart';
 import './product_list.dart';
-
-// Scopde Model
-import '../scoped_models/scoped_main.dart';
+import '../widgets/basic_widgets/logout_list_tile.dart';
 
 class ProductAdminPage extends StatelessWidget {
   final MainModel model;
@@ -23,13 +23,15 @@ class ProductAdminPage extends StatelessWidget {
         ListTile(
           title: Text('Manage Products'),
           onTap: () {
-            Navigator.pushReplacementNamed(context, '/home');
+            Navigator.pushReplacementNamed(context, '/');
             // Navigator.pushReplacement(
             //     context,
             //     MaterialPageRoute(
             //         builder: (BuildContext context) => ProductsPage()));
           },
-        )
+        ),
+        Divider(),
+        LogoutListTile()
       ],
     ));
   }

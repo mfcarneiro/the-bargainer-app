@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:scoped_model/scoped_model.dart';
 
-// Scoped model
+import '../models/auth.dart';
+
 import '../scoped_models/scoped_main.dart';
 
 class AuthPage extends StatefulWidget {
@@ -11,6 +12,9 @@ class AuthPage extends StatefulWidget {
 class _AuthPageState extends State<AuthPage> {
   final Map<String, dynamic> _loginInputs = {'email': null, 'password': null};
   final GlobalKey<FormState> _loginForm = GlobalKey<FormState>();
+  final TextEditingController _emailTextController = TextEditingController();
+  final TextEditingController _passwordTextController = TextEditingController();
+  AuthMode _authMode = AuthMode.Login;
 
   DecorationImage _buildBackgroundImage() {
     return DecorationImage(
@@ -22,6 +26,10 @@ class _AuthPageState extends State<AuthPage> {
 
   Widget _buildEmailTextField() {
     return TextFormField(
+      //! Controller gives input value from the textField
+      //! By deafult, Flutter automatically do this 'control"
+      //! But can be changed for own needs
+      controller: _emailTextController,
       decoration: InputDecoration(
         filled: true,
         fillColor: Colors.white,
@@ -34,8 +42,8 @@ class _AuthPageState extends State<AuthPage> {
           return 'The email address should not be empty';
         }
 
-        if (value.length < 5) {
-          return 'The email should have at least 5 characters';
+        if (value.length < 6) {
+          return 'The email should have at least 6 characters';
         }
 
         if (!RegExp(
@@ -52,6 +60,7 @@ class _AuthPageState extends State<AuthPage> {
 
   Widget _buildPasswordField() {
     return TextFormField(
+      controller: _passwordTextController,
       obscureText: true,
       decoration: InputDecoration(
         filled: true,
@@ -64,8 +73,8 @@ class _AuthPageState extends State<AuthPage> {
           return 'The password address should not be empty';
         }
 
-        if (value.length < 5) {
-          return 'The password should have at least 5 characters';
+        if (value.length < 6) {
+          return 'The password should have at least 6 characters';
         }
       },
       onSaved: (String value) {
@@ -74,14 +83,65 @@ class _AuthPageState extends State<AuthPage> {
     );
   }
 
-  void _submitLogin(Function doLogin) {
+  Widget _buildPasswordConfirmField() {
+    return TextFormField(
+      obscureText: true,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: Colors.white,
+        labelText: "Confirm Password",
+        border: OutlineInputBorder(),
+      ),
+      validator: (String value) {
+        if (value.isEmpty) {
+          return 'The password address should not be empty';
+        }
+
+        if (value.length < 6) {
+          return 'The password should have at least 6 characters';
+        }
+
+        if (_passwordTextController.text != value) {
+          return 'The given password does not match!';
+        }
+      },
+      onSaved: (String value) {
+        _loginInputs['password'] = value;
+      },
+    );
+  }
+
+  void _submitLogin(
+    Function authenticate,
+  ) async {
+    Map<String, dynamic> successInformation;
+
     if (!_loginForm.currentState.validate()) return;
 
     _loginForm.currentState.save();
 
-    doLogin(email: _loginInputs['email'], password: _loginInputs['password']);
+    successInformation = await authenticate(
+        _loginInputs['email'], _loginInputs['password'], _authMode);
 
-    Navigator.pushReplacementNamed(context, '/home');
+    if (successInformation['success']) {
+      Navigator.pushReplacementNamed(context, '/');
+    } else {
+      showDialog(
+        context: context,
+        builder: (BuildContext context) {
+          return AlertDialog(
+            title: Text('A error occoured!'),
+            content: Text(successInformation['message']),
+            actions: <Widget>[
+              FlatButton(
+                child: Text('Ok'),
+                onPressed: () => Navigator.of(context).pop(),
+              )
+            ],
+          );
+        },
+      );
+    }
   }
 
   double _deviceWidthTarget(BuildContext context,
@@ -139,29 +199,54 @@ class _AuthPageState extends State<AuthPage> {
                               Container(
                                 margin: EdgeInsets.only(bottom: 10),
                                 child: _buildPasswordField(),
-                              )
+                              ),
+                              Container(
+                                  margin: EdgeInsets.only(bottom: 10),
+                                  child: _authMode == AuthMode.SignUp
+                                      ? _buildPasswordConfirmField()
+                                      : Container()),
                             ],
                           ),
                         ),
                       ),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
+                          Container(
+                            child: FlatButton(
+                                child: Text(
+                                  'Switch to ${_authMode == AuthMode.Login ? 'SignUp' : 'Login'}',
+                                ),
+                                textColor: Colors.white,
+                                onPressed: () {
+                                  setState(() {
+                                    _authMode = _authMode == AuthMode.Login
+                                        ? AuthMode.SignUp
+                                        : AuthMode.Login;
+                                  });
+                                }),
+                          ),
                           ScopedModelDescendant<MainModel>(builder:
                               (BuildContext context, Widget child,
                                   MainModel model) {
-                            return RaisedButton(
-                                child: Container(
-                                  child: Text('Login'),
-                                ),
-                                shape: RoundedRectangleBorder(
-                                    borderRadius: BorderRadius.circular(05)),
-                                color: Theme.of(context).accentColor,
-                                textColor: Colors.white,
-                                onPressed: () => _submitLogin(model.doLogin));
-                          })
+                            return model.getLoadingProcess
+                                ? CircularProgressIndicator()
+                                : RaisedButton(
+                                    child: Container(
+                                      child: _authMode == AuthMode.Login
+                                          ? Text('Login')
+                                          : Text('Sign Up'),
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                        borderRadius:
+                                            BorderRadius.circular(05)),
+                                    color: Theme.of(context).accentColor,
+                                    textColor: Colors.white,
+                                    onPressed: () =>
+                                        _submitLogin(model.authenticateUser));
+                          }),
                         ],
-                      )
+                      ),
                     ],
                   ),
                 ))));

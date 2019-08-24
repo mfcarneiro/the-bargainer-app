@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "128486550681",
+    "firebase_url": "https://u-the-bargainer-app.firebaseio.com",
+    "project_id": "u-the-bargainer-app",
+    "storage_bucket": "u-the-bargainer-app.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:128486550681:android:23bd3bb21b2c84cc",
+        "android_client_info": {
+          "package_name": "com.nn0team.bargainer_app"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "128486550681-v0nmp83p5eo5oatbkfg3d8jiej8jv5qu.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAOqq7YcacgjfIXO0WdUWVe5SA14W8KIHA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "128486550681-v0nmp83p5eo5oatbkfg3d8jiej8jv5qu.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
